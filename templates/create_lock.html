@@ -91,7 +91,7 @@
         <div class="mb-3">
             <label for="success_sound" class="form-label">Success Sound (Optional)</label>
             <input type="file" class="form-control" id="success_sound" name="success_sound" accept="audio/*">
-            {% if lock.success_sound and lock.success_sound != 'static/sounds/success.mp3' %}
+            {% if lock.success_sound and lock.success_sound != 'static/sounds/code_unlock.wav' %}
                 <div class="mt-2">
                     <small>Current success sound: {{ lock.success_sound }}</small>
                 </div>

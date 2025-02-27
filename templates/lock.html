@@ -35,19 +35,9 @@
         <button id="submitBtn" class="btn btn-primary">Submit</button>
     </div>
     
-    <!-- <div id="result" class="mt-3 text-center" style="display: none;">
-        <div id="success" style="display: none;">
-            <div class="alert alert-success">
-                <h2 dir="rtl">כל הכבוד!</h2>
-            </div>
-        </div>
-        <div id="error" style="display: none;">
-            <div class="alert alert-danger">
-                <h2>Incorrect Code</h2>
-                <img src="{{ url_for('static', filename='images/error.png') }}" alt="Error" style="max-width: 100px;">
-            </div>
-        </div>
-    </div> -->
+    <div id="error" class="mt-3 text-center alert alert-danger" style="display: none;">
+        <h2>Incorrect Code</h2>
+    </div>
 </div>
 {% endblock %}
 
@@ -56,14 +46,19 @@
     document.addEventListener('DOMContentLoaded', function() {
         const digitWheels = document.querySelectorAll('.digit-wheel');
         const submitBtn = document.getElementById('submitBtn');
-        const resultDiv = document.getElementById('result');
-        const successDiv = document.getElementById('success');
-        const errorDiv = document.getElementById('error');
-        
-        // Create audio elements
+
+        // Create and preload audio elements
         const digitSound = new Audio("{{ url_for('static', filename=lock.digit_sound) }}");
+        digitSound.preload = "auto";
+        digitSound.load();
+
         const successSound = new Audio("{{ url_for('static', filename=lock.success_sound) }}");
+        successSound.preload = "auto";
+        successSound.load();
+
         const errorSound = new Audio("{{ url_for('static', filename=lock.error_sound) }}");
+        errorSound.preload = "auto"
+        errorSound.load();
         
         // Parse digit colors
         const colorString = "{{ lock.digit_color }}";
@@ -134,31 +129,32 @@
             })
             .then(response => response.json())
             .then(data => {
-                // Handle response...
-                resultDiv.style.display = 'block';
+                // // Handle response...
+                // resultDiv.style.display = 'block';
                 
                 if (data.success) {
-                    successDiv.style.display = 'block';
-                    errorDiv.style.display = 'none';
+                    // successDiv.style.display = 'block';
+                    // errorDiv.style.display = 'none';
                     successSound.play();
                     
-                    // Redirect after playing the success sound
+                    // // Redirect after playing the success sound
                     setTimeout(() => {
                         window.location.href = data.redirect;
-                    }, 1500);
+                    }, 600);
                 } else {
-                    successDiv.style.display = 'none';
-                    errorDiv.style.display = 'block';
+                    // successDiv.style.display = 'none';
+                    // errorDiv.style.display = 'block';
                     errorSound.play();
                     
                     // Hide the error message after a few seconds
-                    setTimeout(() => {
-                        resultDiv.style.display = 'none';
-                    }, 3000);
+                    // setTimeout(() => {
+                    //     resultDiv.style.display = 'none';
+                    // }, 3000);
                 }
             })
             .catch(error => {
                 console.error('Error:', error);
+                alert("There was an error checking the code. Please try again.");
             });
         });
     });
