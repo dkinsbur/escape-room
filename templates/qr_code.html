@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+
+{% block title %}QR Code for {{ lock.title }}{% endblock %}
+
+{% block head %}
+    <script src="https://cdn.jsdelivr.net/npm/qrcode.js@1.0.0/qrcode.min.js"></script>
+{% endblock %}
+
+{% block content %}
+    <h1>QR Code for: {{ lock.title }}</h1>
+    <p>URL: <a href="{{ lock_url }}" target="_blank">{{ lock_url }}</a></p>
+    
+    <div class="text-center my-4">
+        <div id="qrcode" class="d-inline-block p-3 bg-white"></div>
+    </div>
+    
+    <div class="my-3">
+        <button class="btn btn-primary" id="printBtn">Print QR Code</button>
+        <a href="{{ url_for('admin_panel') }}" class="btn btn-secondary">Back to Admin</a>
+    </div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Generate QR code
+        var qrcode = new QRCode(document.getElementById("qrcode"), {
+            text: "{{ lock_url }}",
+            width: 256,
+            height: 256,
+            colorDark: "#000000",
+            colorLight: "#ffffff",
+            correctLevel: QRCode.CorrectLevel.H
+        });
+        
+        // Print functionality
+        document.getElementById('printBtn').addEventListener('click', function() {
+            window.print();
+        });
+    });
+</script>
+{% endblock %}

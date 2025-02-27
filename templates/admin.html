@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+
+{% block title %}Escape Room Admin{% endblock %}
+
+{% block content %}
+    <h1>Escape Room Lock Admin Panel</h1>
+    <div class="mb-3">
+        <a href="{{ url_for('create_lock') }}" class="btn btn-primary">Create New Lock</a>
+    </div>
+    
+    <h2>Existing Locks</h2>
+    {% if locks %}
+        <div class="table-responsive">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Title</th>
+                        <th>Lock ID</th>
+                        <th>Digits</th>
+                        <th>Code</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for lock in locks %}
+                        <tr>
+                            <td>{{ lock.title }}</td>
+                            <td><small>{{ lock.id }}</small></td>
+                            <td>{{ lock.num_digits }}</td>
+                            <td>{{ lock.correct_code }}</td>
+                            <td>
+                                <div class="btn-group">
+                                    <a href="{{ url_for('edit_lock', lock_id=lock.id) }}" class="btn btn-sm btn-secondary">Edit</a>
+                                    <a href="{{ url_for('qr_code', lock_id=lock.id) }}" class="btn btn-sm btn-info">QR Code</a>
+                                    <a href="{{ url_for('show_lock', lock_id=lock.id) }}" class="btn btn-sm btn-success" target="_blank">View</a>
+                                    <form method="POST" action="{{ url_for('delete_lock', lock_id=lock.id) }}" style="display: inline;">
+                                        <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure?');">Delete</button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <p>No locks created yet.</p>
+    {% endif %}
+{% endblock %}

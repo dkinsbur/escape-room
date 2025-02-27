@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+
+{% block title %}Success!{% endblock %}
+
+{% block content %}
+<div class="text-center my-5">
+    <h1>Success!</h1>
+    
+    <div class="my-4">
+        {{ lock.success_text|safe }}
+    </div>
+    
+    {% if lock.success_media_path %}
+        {% if lock.success_media_path.endswith('.mp4') or lock.success_media_path.endswith('.webm') or lock.success_media_path.endswith('.mov') %}
+            <div class="my-4">
+                <video controls style="max-width: 100%; max-height: 400px;" autoplay>
+                    <source src="{{ url_for('static', filename=lock.success_media_path) }}" type="video/mp4">
+                    Your browser does not support the video tag.
+                </video>
+            </div>
+        {% else %}
+            <div class="my-4">
+                <img src="{{ url_for('static', filename=lock.success_media_path) }}" alt="Success Image" style="max-width: 100%; max-height: 400px;">
+            </div>
+        {% endif %}
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,135 @@
+{% extends "base.html" %}
+
+{% block title %}Edit Lock{% endblock %}
+
+{% block head %}
+<script>
+    function updateDigitColorInputs() {
+        const numDigits = document.getElementById('num_digits').value;
+        const colorContainer = document.getElementById('digit_colors_container');
+        
+        // Clear existing color inputs
+        colorContainer.innerHTML = '';
+        
+        // Get existing colors
+        const existingColors = {{ digit_colors | tojson }};
+        
+        // Create color inputs for each digit
+        for (let i = 0; i < numDigits; i++) {
+            const colorValue = i < existingColors.length ? existingColors[i] : '#000000';
+            
+            const div = document.createElement('div');
+            div.className = 'mb-3';
+            div.innerHTML = `
+                <label for="digit_color_${i}" class="form-label">Digit ${i+1} Color</label>
+                <input type="color" class="form-control" id="digit_color_${i}" name="digit_color_${i}" value="${colorValue}">
+            `;
+            colorContainer.appendChild(div);
+        }
+    }
+</script>
+{% endblock %}
+
+{% block content %}
+    <h1>Edit Lock: {{ lock.title }}</h1>
+    <form method="POST" enctype="multipart/form-data">
+        <div class="mb-3">
+            <label for="title" class="form-label">Lock Title</label>
+            <input type="text" class="form-control" id="title" name="title" value="{{ lock.title }}" required>
+        </div>
+        
+        <div class="mb-3">
+            <label for="num_digits" class="form-label">Number of Digits</label>
+            <input type="number" class="form-control" id="num_digits" name="num_digits" min="1" max="10" value="{{ lock.num_digits }}" required onchange="updateDigitColorInputs()">
+        </div>
+        
+        <!-- Dynamic container for digit color inputs -->
+        <div id="digit_colors_container">
+            <!-- Will be filled by JavaScript -->
+        </div>
+        
+        <div class="mb-3">
+            <label for="correct_code" class="form-label">Correct Code</label>
+            <input type="text" class="form-control" id="correct_code" name="correct_code" value="{{ lock.correct_code }}" required pattern="[0-9]+" placeholder="Numeric code">
+        </div>
+        
+        <div class="mb-3">
+            <label for="image" class="form-label">Lock Image (Optional)</label>
+            <input type="file" class="form-control" id="image" name="image" accept="image/*">
+            {% if lock.image_path %}
+                <div class="mt-2">
+                    <small>Current image: {{ lock.image_path }}</small>
+                </div>
+            {% endif %}
+        </div>
+        
+        <div class="mb-3">
+            <label for="video" class="form-label">Lock Video (Optional)</label>
+            <input type="file" class="form-control" id="video" name="video" accept="video/*">
+            {% if lock.video_path %}
+                <div class="mt-2">
+                    <small>Current video: {{ lock.video_path }}</small>
+                </div>
+            {% endif %}
+        </div>
+        
+        <div class="mb-3">
+            <label for="success_text" class="form-label">Success Message</label>
+            <textarea class="form-control" id="success_text" name="success_text" rows="3">{{ lock.success_text }}</textarea>
+        </div>
+        
+        <div class="mb-3">
+            <label for="success_media" class="form-label">Success Media (Optional)</label>
+            <input type="file" class="form-control" id="success_media" name="success_media" accept="image/*,video/*">
+            {% if lock.success_media_path %}
+                <div class="mt-2">
+                    <small>Current success media: {{ lock.success_media_path }}</small>
+                </div>
+            {% endif %}
+        </div>
+        
+        <div class="mb-3">
+            <label for="success_sound" class="form-label">Success Sound (Optional)</label>
+            <input type="file" class="form-control" id="success_sound" name="success_sound" accept="audio/*">
+            {% if lock.success_sound %}
+                <div class="mt-2">
+                    <small>Current success sound: {{ lock.success_sound }}</small>
+                </div>
+            {% endif %}
+        </div>
+        
+        <div class="mb-3">
+            <label for="error_sound" class="form-label">Error Sound (Optional)</label>
+            <input type="file" class="form-control" id="error_sound" name="error_sound" accept="audio/*">
+            {% if lock.error_sound %}
+                <div class="mt-2">
+                    <small>Current error sound: {{ lock.error_sound }}</small>
+                </div>
+            {% endif %}
+        </div>
+        
+        <div class="mb-3">
+            <label for="digit_sound" class="form-label">Digit Spin Sound (Optional)</label>
+            <input type="file" class="form-control" id="digit_sound" name="digit_sound" accept="audio/*">
+            {% if lock.digit_sound %}
+                <div class="mt-2">
+                    <small>Current digit sound: {{ lock.digit_sound }}</small>
+                </div>
+            {% endif %}
+        </div>
+        
+        <div class="mb-3">
+            <button type="submit" class="btn btn-primary">Update Lock</button>
+            <a href="{{ url_for('admin_panel') }}" class="btn btn-secondary">Cancel</a>
+        </div>
+    </form>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Initialize color inputs on page load
+    document.addEventListener('DOMContentLoaded', function() {
+        updateDigitColorInputs();
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,153 @@
+{% extends "base.html" %}
+
+{% block title %}{{ lock.title }}{% endblock %}
+
+{% block content %}
+<div class="lock-container">
+    <h1>{{ lock.title }}</h1>
+    
+    {% if lock.image_path %}
+    <div class="my-3">
+        <img src="{{ url_for('static', filename=lock.image_path) }}" alt="Lock Image" style="max-width: 100%; max-height: 300px;">
+    </div>
+    {% endif %}
+    
+    {% if lock.video_path %}
+    <div class="my-3">
+        <video controls style="max-width: 100%; max-height: 300px;">
+            <source src="{{ url_for('static', filename=lock.video_path) }}" type="video/mp4">
+            Your browser does not support the video tag.
+        </video>
+    </div>
+    {% endif %}
+    
+    <div class="digits-container">
+        {% for i in range(lock.num_digits) %}
+        <div class="digit-wheel" data-position="0">
+            <div class="digit-control digit-up">▲</div>
+            <span class="digit-value" style="color: {{ lock.digit_color }};">0</span>
+            <div class="digit-control digit-down">▼</div>
+        </div>
+        {% endfor %}
+    </div>
+    
+    <div class="mt-3">
+        <button id="submitBtn" class="btn btn-primary">Submit</button>
+    </div>
+    
+    <div id="result" class="mt-3 text-center" style="display: none;">
+        <div id="success" style="display: none;">
+            <div class="alert alert-success">
+                <h2 dir="rtl">כל הכבוד!</h2>
+            </div>
+        </div>
+        <div id="error" style="display: none;">
+            <div class="alert alert-danger">
+                <h2>Incorrect Code</h2>
+                <img src="{{ url_for('static', filename='images/error.png') }}" alt="Error" style="max-width: 100px;">
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const digitWheels = document.querySelectorAll('.digit-wheel');
+        const submitBtn = document.getElementById('submitBtn');
+        const resultDiv = document.getElementById('result');
+        const successDiv = document.getElementById('success');
+        const errorDiv = document.getElementById('error');
+        
+        // Create audio elements
+        const digitSound = new Audio("{{ url_for('static', filename=lock.digit_sound) }}");
+        const successSound = new Audio("{{ url_for('static', filename=lock.success_sound) }}");
+        const errorSound = new Audio("{{ url_for('static', filename=lock.error_sound) }}");
+        
+        // Digit wheel functionality
+        digitWheels.forEach(wheel => {
+            const upControl = wheel.querySelector('.digit-up');
+            const downControl = wheel.querySelector('.digit-down');
+            const digitValue = wheel.querySelector('.digit-value');
+            
+            // Function to update digit value
+            const updateDigit = (increment) => {
+                let currentPosition = parseInt(wheel.getAttribute('data-position'));
+                
+                // Add increment (+1 or -1) and handle wrapping
+                currentPosition = (currentPosition + increment + 10) % 10;
+                
+                wheel.setAttribute('data-position', currentPosition);
+                digitValue.textContent = currentPosition;
+                
+                // Play sound effect
+                digitSound.currentTime = 0;
+                digitSound.play();
+            };
+            
+            // Up arrow functionality
+            upControl.addEventListener('click', function(e) {
+                e.stopPropagation(); // Prevent event bubbling
+                updateDigit(1);
+            });
+            
+            // Down arrow functionality
+            downControl.addEventListener('click', function(e) {
+                e.stopPropagation(); // Prevent event bubbling
+                updateDigit(-1);
+            });
+            
+            // Make the digit itself also clickable (increment)
+            digitValue.addEventListener('click', function(e) {
+                e.stopPropagation(); // Prevent event bubbling
+                updateDigit(1);
+            });
+        });
+        
+        // Submit button functionality
+        submitBtn.addEventListener('click', function() {
+            let code = '';
+            digitWheels.forEach(wheel => {
+                code += wheel.querySelector('.digit-value').textContent;
+            });
+            
+            // Make AJAX request to check code
+            fetch("{{ url_for('check_code', lock_id=lock.id) }}", {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: 'code=' + code
+            })
+            .then(response => response.json())
+            .then(data => {
+                resultDiv.style.display = 'block';
+                
+                if (data.success) {
+                    successDiv.style.display = 'block';
+                    errorDiv.style.display = 'none';
+                    successSound.play();
+                    
+                    // Redirect after playing the success sound
+                    setTimeout(() => {
+                        window.location.href = data.redirect;
+                    }, 1500);
+                } else {
+                    successDiv.style.display = 'none';
+                    errorDiv.style.display = 'block';
+                    errorSound.play();
+                    
+                    // Hide the error message after a few seconds
+                    setTimeout(() => {
+                        resultDiv.style.display = 'none';
+                    }, 3000);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+        });
+    });
+</script>
+{% endblock %}

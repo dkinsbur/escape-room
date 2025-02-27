@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Escape Room{% endblock %}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            padding-top: 20px;
+            padding-bottom: 20px;
+        }
+        .digit-wheel {
+            font-size: 3rem;
+            font-weight: bold;
+            text-align: center;
+            width: 60px;
+            height: 120px;
+            margin: 0 5px;
+            border: 2px solid #333;
+            border-radius: 8px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            align-items: center;
+            user-select: none;
+            overflow: hidden;
+            background-color: white;
+        }
+        .digit-control {
+            width: 100%;
+            text-align: center;
+            font-size: 1.5rem;
+            cursor: pointer;
+            background-color: #d3d3d3;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 30px;
+        }
+        .digit-up {
+            border-bottom: 1px solid #999;
+        }
+        .digit-down {
+            border-top: 1px solid #999;
+        }
+        .digit-value {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5rem;
+            width: 100%;
+        }
+        .lock-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            height: 100vh;
+        }
+        .digits-container {
+            display: flex;
+            justify-content: center;
+            margin: 20px 0;
+        }
+    </style>
+    {% block head %}{% endblock %}
+</head>
+<body>
+    <div class="container">
+        {% block content %}{% endblock %}
+    </div>
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    {% block scripts %}{% endblock %}
+</body>
+</html>
