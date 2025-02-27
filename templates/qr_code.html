@@ -3,18 +3,58 @@
 {% block title %}QR Code for {{ lock.title }}{% endblock %}
 
 {% block head %}
-    <script src="https://cdn.jsdelivr.net/npm/qrcode.js@1.0.0/qrcode.min.js"></script>
+    <!-- Use a more reliable QR code library -->
+    <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+    <style>
+        #qrcode {
+            padding: 15px;
+            background: white;
+            display: inline-block;
+            margin: 0 auto;
+            border: 1px solid #ddd;
+        }
+        .qr-container {
+            text-align: center;
+            margin: 30px 0;
+        }
+        .qr-url {
+            margin-top: 15px;
+            word-break: break-all;
+            font-family: monospace;
+            max-width: 500px;
+            margin: 15px auto;
+        }
+        @media print {
+            .no-print {
+                display: none;
+            }
+            body {
+                margin: 0;
+                padding: 0;
+            }
+            .print-container {
+                width: 100%;
+                text-align: center;
+            }
+            .qr-url {
+                margin-top: 20px;
+            }
+        }
+    </style>
 {% endblock %}
 
 {% block content %}
-    <h1>QR Code for: {{ lock.title }}</h1>
-    <p>URL: <a href="{{ lock_url }}" target="_blank">{{ lock_url }}</a></p>
-    
-    <div class="text-center my-4">
-        <div id="qrcode" class="d-inline-block p-3 bg-white"></div>
+    <div class="no-print">
+        <h1>QR Code for: {{ lock.title }}</h1>
+        <p>Scan this QR code to access the lock:</p>
     </div>
     
-    <div class="my-3">
+    <div class="qr-container print-container">
+        <div id="qrcode"></div>
+        <div class="qr-url">{{ lock_url }}</div>
+    </div>
+    
+    <div class="my-3 no-print">
         <button class="btn btn-primary" id="printBtn">Print QR Code</button>
         <a href="{{ url_for('admin_panel') }}" class="btn btn-secondary">Back to Admin</a>
     </div>
@@ -23,8 +63,11 @@
 {% block scripts %}
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        // Generate QR code
-        var qrcode = new QRCode(document.getElementById("qrcode"), {
+        // Clear any existing content
+        document.getElementById('qrcode').innerHTML = '';
+        
+        // Generate QR code with better options
+        new QRCode(document.getElementById("qrcode"), {
             text: "{{ lock_url }}",
             width: 256,
             height: 256,

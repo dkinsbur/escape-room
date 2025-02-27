@@ -1,7 +1,33 @@
 {% extends "base.html" %}
 
 {% block title %}Edit Lock{% endblock %}
-
+{% block head %}
+<script>
+    function updateDigitColorInputs() {
+        const numDigits = document.getElementById('num_digits').value;
+        const colorContainer = document.getElementById('digit_colors_container');
+        
+        // Clear existing color inputs
+        colorContainer.innerHTML = '';
+        
+        // Get existing colors
+        const existingColors = {{ digit_colors | tojson }};
+        
+        // Create color inputs for each digit
+        for (let i = 0; i < numDigits; i++) {
+            const colorValue = i < existingColors.length ? existingColors[i] : '#000000';
+            
+            const div = document.createElement('div');
+            div.className = 'mb-3';
+            div.innerHTML = `
+                <label for="digit_color_${i}" class="form-label">Digit ${i+1} Color</label>
+                <input type="color" class="form-control" id="digit_color_${i}" name="digit_color_${i}" value="${colorValue}">
+            `;
+            colorContainer.appendChild(div);
+        }
+    }
+</script>
+{% endblock %}
 {% block content %}
     <h1>Edit Lock: {{ lock.title }}</h1>
     <form method="POST" enctype="multipart/form-data">
@@ -12,14 +38,13 @@
         
         <div class="mb-3">
             <label for="num_digits" class="form-label">Number of Digits</label>
-            <input type="number" class="form-control" id="num_digits" name="num_digits" min="1" max="10" value="{{ lock.num_digits }}" required>
+            <input type="number" class="form-control" id="num_digits" name="num_digits" min="1" max="10" value="{{ lock.num_digits }}" required onchange="updateDigitColorInputs()">
         </div>
-        
-        <div class="mb-3">
-            <label for="digit_color" class="form-label">Digit Color</label>
-            <input type="color" class="form-control" id="digit_color" name="digit_color" value="{{ lock.digit_color }}">
+
+        <div id="digit_colors_container">
+            <!-- Will be filled by JavaScript -->
         </div>
-        
+
         <div class="mb-3">
             <label for="correct_code" class="form-label">Correct Code</label>
             <input type="text" class="form-control" id="correct_code" name="correct_code" value="{{ lock.correct_code }}" required pattern="[0-9]+" placeholder="Numeric code">
@@ -83,4 +108,18 @@
             <a href="{{ url_for('admin_panel') }}" class="btn btn-secondary">Cancel</a>
         </div>
     </form>
+{% endblock %}
+{% block scripts %}
+<script>
+    // Initialize color inputs on page load
+    document.addEventListener('DOMContentLoaded', function() {
+        updateDigitColorInputs();
+        
+        // Add form submission handler
+        document.querySelector('form').addEventListener('submit', function(event) {
+            // No need to prevent default or add hidden inputs
+            // The individual digit color inputs will be submitted directly
+        });
+    });
+</script>
 {% endblock %}

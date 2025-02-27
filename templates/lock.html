@@ -25,7 +25,7 @@
         {% for i in range(lock.num_digits) %}
         <div class="digit-wheel" data-position="0">
             <div class="digit-control digit-up">▲</div>
-            <span class="digit-value" style="color: {{ lock.digit_color }};">0</span>
+            <span class="digit-value">0</span>
             <div class="digit-control digit-down">▼</div>
         </div>
         {% endfor %}
@@ -35,7 +35,7 @@
         <button id="submitBtn" class="btn btn-primary">Submit</button>
     </div>
     
-    <div id="result" class="mt-3 text-center" style="display: none;">
+    <!-- <div id="result" class="mt-3 text-center" style="display: none;">
         <div id="success" style="display: none;">
             <div class="alert alert-success">
                 <h2 dir="rtl">כל הכבוד!</h2>
@@ -47,7 +47,7 @@
                 <img src="{{ url_for('static', filename='images/error.png') }}" alt="Error" style="max-width: 100px;">
             </div>
         </div>
-    </div>
+    </div> -->
 </div>
 {% endblock %}
 
@@ -65,11 +65,23 @@
         const successSound = new Audio("{{ url_for('static', filename=lock.success_sound) }}");
         const errorSound = new Audio("{{ url_for('static', filename=lock.error_sound) }}");
         
+        // Parse digit colors
+        const colorString = "{{ lock.digit_color }}";
+        let colors = [colorString];  // Default single color
+        
+        if (colorString.includes(',')) {
+            colors = colorString.split(',');
+        }
+        
         // Digit wheel functionality
-        digitWheels.forEach(wheel => {
+        digitWheels.forEach((wheel, index) => {
             const upControl = wheel.querySelector('.digit-up');
             const downControl = wheel.querySelector('.digit-down');
             const digitValue = wheel.querySelector('.digit-value');
+            
+            // Set the color for this digit
+            const digitColor = index < colors.length ? colors[index] : colors[0];
+            digitValue.style.color = digitColor;
             
             // Function to update digit value
             const updateDigit = (increment) => {
@@ -122,6 +134,7 @@
             })
             .then(response => response.json())
             .then(data => {
+                // Handle response...
                 resultDiv.style.display = 'block';
                 
                 if (data.success) {
